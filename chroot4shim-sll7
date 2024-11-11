@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Sample script to generate a tarball with a buildroot that can be imported into podman/docker
+
+CHROOT_DIR=/tmp/chroot4shim
+DNF_CONF_DIR=/tmp/
+DNF_CONF=$DNF_CONF_DIR/res7.repo
+STORE=$(pwd)/chroot4shim.tar.gz
+REPO_HOST=8.8.8.8
+
+PACKAGE_LIST="gcc-4.8.5-44.el7 make-3.82-24.el7 elfutils-libelf-devel-0.176-5.el7.x86_64 openssl-1.0.2k-26.el7_9 openssl-devel-1.0.2k-26.el7_9 pesign-0.109-11.el7_9 dos2unix-6.0.3-7.el7 rpm-build-4.11.3-48.el7_9 gnu-efi-3.0.8-2.el7 gnu-efi-devel-3.0.8-2.el7 efivar-libs-36-12.el7 efivar-devel-36-12.el7 vim-common git"
+
+mkdir -p $CHROOT_DIR
+mkdir -p $DNF_CONF_DIR
+
+cat > $DNF_CONF <<EOF
+[main]
+gpgcheck=0
+gpgkey=
+installonly_limit=3
+clean_requirements_on_remove=True
+best=True
+skip_if_unavailable=False
+metadata_expire=0
+sslverify=0
+reposdir=
+[RES7-x86_64-incoming]
+name=Incoming repository for x86_64 architecture
+baseurl=https://$REPO_HOST/incoming/RH7.0-LT/x86_64/
+enabled=1
+EOF
+
+
+sudo yum -c $DNF_CONF -yy install --installroot $CHROOT_DIR $PACKAGE_LIST
+
+pushd $CHROOT_DIR
+
+sudo rm -rf ./var/cache/yum/*
+
+sudo tar -czvf $STORE ./
+popd
+sudo rm -rf $CHROOT_DIR
