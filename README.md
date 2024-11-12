@@ -244,11 +244,11 @@ Hint: Prefer using *frozen* packages for your toolchain, since an update to GCC,
 
 If your shim binaries can't be reproduced using the provided Dockerfile, please explain why that's the case, what the differences would be and what build environment (OS and toolchain) is being used to reproduce this build? In this case please write a detailed guide, how to setup this build environment from scratch.
 *******************************************************************************
-Import the root.tar.xz (provided with the submission) into podman/docker first:
+Import the container provided with the submission, it's not publicly availabable currently. Load into podman/docker first:
 
 $ podman import ./chroot4shim.tar.gz sll7ltss_shim_review
 
-Have a shim SRPM and shim binaries copied alongside Dockerfile before start, then run:
+Have a shim SRPM and shim binaries copied alongside Dockerfile before starting, then run:
 
 $ podman build --security-opt=seccomp=unconfined -f Dockerfile
 
